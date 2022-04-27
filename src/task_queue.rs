@@ -20,7 +20,7 @@ impl<T> TaskQueue<T> {
     /// Add `val` to the queue.
     ///
     /// Blocks if queue is currently locked.
-    pub fn enque(&self, val: T) {
+    pub fn push(&self, val: T) {
         self.lock().push_back(val);
         self.new_task_ready.notify_one();
     }
@@ -44,7 +44,7 @@ impl<T> TaskQueue<T> {
     /// Add `val` to the queue.
     ///
     /// Returns `false` if queue is currently locked.
-    pub fn try_enque(&self, val: T) -> bool {
+    pub fn try_push(&self, val: T) -> bool {
         match self.data.try_lock() {
             Ok(mut data) => {
                 data.push_back(val);
@@ -81,8 +81,8 @@ mod tests {
     fn pop_is_in_order() {
         // Arrange
         let tq = TaskQueue::new();
-        tq.enque(0);
-        tq.enque(1);
+        tq.push(0);
+        tq.push(1);
 
         // Act
         let a = tq.pop();
