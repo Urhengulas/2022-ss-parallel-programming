@@ -47,8 +47,12 @@ impl<T> TaskQueue<T> {
         }
     }
 
-    pub fn try_pop(&self) -> Option<T> {
-        self.lock().pop_front()
+    pub fn try_pop(&self) -> Option<Option<T>> {
+        match self.data.try_lock() {
+            Ok(mut data) => Some(data.pop_front()),
+            Err(TryLockError::WouldBlock) => None,
+            Err(err @ TryLockError::Poisoned(_)) => panic!("{}", err),
+        }
     }
 
     fn lock(&self) -> MutexGuard<VecDeque<T>> {
