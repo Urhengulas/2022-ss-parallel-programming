@@ -72,3 +72,49 @@ impl<T> TaskQueue<T> {
         self.data.lock().unwrap()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn pop_is_in_order() {
+        // Arrange
+        let tq = TaskQueue::new();
+        tq.enque(0);
+        tq.enque(1);
+
+        // Act
+        let a = tq.pop();
+        let b = tq.pop();
+
+        // Assert
+        assert_eq!(a, 0);
+        assert_eq!(b, 1);
+    }
+
+    #[test]
+    fn try_pop_empty_queue() {
+        // Arrange
+        let tq = TaskQueue::<i32>::new();
+
+        // Act
+        let a = tq.try_pop();
+
+        // Assert
+        assert_eq!(a, Some(None));
+    }
+
+    #[test]
+    fn try_pop_locked_queue() {
+        // Arrange
+        let tq = TaskQueue::<i32>::new();
+        let _handle = tq.lock();
+
+        // Act
+        let a = tq.try_pop();
+
+        // Assert
+        assert_eq!(a, None);
+    }
+}
