@@ -4,15 +4,15 @@ use std::{
 };
 
 #[derive(Debug)]
-pub struct TaskQueue<T> {
-    data: Mutex<VecDeque<T>>,
+pub struct Queue<T> {
+    queue: Mutex<VecDeque<T>>,
     new_task_ready: Condvar,
 }
 
-impl<T> TaskQueue<T> {
+impl<T> Queue<T> {
     pub fn new() -> Self {
         Self {
-            data: Mutex::new(VecDeque::new()),
+            queue: Mutex::new(VecDeque::new()),
             new_task_ready: Condvar::new(),
         }
     }
@@ -29,12 +29,12 @@ impl<T> TaskQueue<T> {
     ///
     /// Blocks if queue is currently locked or empty.
     pub fn pop(&self) -> T {
-        let mut data = self.lock();
+        let mut queue = self.lock();
         loop {
-            match data.is_empty() {
-                false => return data.pop_front().unwrap(),
+            match queue.is_empty() {
+                false => return queue.pop_front().unwrap(),
                 true => {
-                    data = self.new_task_ready.wait(data).unwrap();
+                    queue = self.new_task_ready.wait(queue).unwrap();
                     continue;
                 }
             }
@@ -45,9 +45,9 @@ impl<T> TaskQueue<T> {
     ///
     /// Returns `false` if queue is currently locked.
     pub fn try_push(&self, val: T) -> bool {
-        match self.data.try_lock() {
-            Ok(mut data) => {
-                data.push_back(val);
+        match self.queue.try_lock() {
+            Ok(mut queue) => {
+                queue.push_back(val);
                 self.new_task_ready.notify_one();
                 true
             }
@@ -61,15 +61,15 @@ impl<T> TaskQueue<T> {
     /// Returns `None` if the queue is locked.
     /// Returns `Some(None)` if the queue is empty.
     pub fn try_pop(&self) -> Option<Option<T>> {
-        match self.data.try_lock() {
-            Ok(mut data) => Some(data.pop_front()),
+        match self.queue.try_lock() {
+            Ok(mut queue) => Some(queue.pop_front()),
             Err(TryLockError::WouldBlock) => None,
             Err(err @ TryLockError::Poisoned(_)) => panic!("{}", err),
         }
     }
 
     fn lock(&self) -> MutexGuard<VecDeque<T>> {
-        self.data.lock().unwrap()
+        self.queue.lock().unwrap()
     }
 }
 
@@ -80,7 +80,7 @@ mod tests {
     #[test]
     fn pop_is_in_order() {
         // Arrange
-        let tq = TaskQueue::new();
+        let tq = Queue::new();
         tq.push(0);
         tq.push(1);
 
@@ -96,7 +96,7 @@ mod tests {
     #[test]
     fn try_pop_empty_queue() {
         // Arrange
-        let tq = TaskQueue::<i32>::new();
+        let tq = Queue::<i32>::new();
 
         // Act
         let a = tq.try_pop();
@@ -108,7 +108,7 @@ mod tests {
     #[test]
     fn try_pop_locked_queue() {
         // Arrange
-        let tq = TaskQueue::<i32>::new();
+        let tq = Queue::<i32>::new();
         let _handle = tq.lock();
 
         // Act

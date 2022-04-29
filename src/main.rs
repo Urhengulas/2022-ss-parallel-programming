@@ -1,4 +1,4 @@
-mod task_queue;
+mod queue;
 mod thread_pool;
 
 use std::{
@@ -6,7 +6,7 @@ use std::{
     net::{TcpListener, TcpStream},
 };
 
-pub use crate::{task_queue::TaskQueue, thread_pool::ThreadPool};
+pub use crate::{queue::Queue, thread_pool::ThreadPool};
 
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
