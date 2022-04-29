@@ -1,7 +1,7 @@
 use std::{
     sync::{
-        atomic::{AtomicUsize, Ordering},
-        mpsc,
+        atomic::{AtomicBool, AtomicUsize, Ordering},
+        mpsc, Arc, Mutex,
     },
     thread,
 };
@@ -53,20 +53,66 @@ impl ThreadPool {
 struct Worker {
     _id: usize,
     _thread: thread::JoinHandle<()>,
+    is_working: Arc<AtomicBool>,
 }
 
 impl Worker {
     fn new(id: usize, receiver: mpsc::Receiver<Job>) -> Self {
-        let _thread = thread::spawn(move || loop {
-            let job = match receiver.recv() {
-                Ok(job) => job,
-                Err(_) => return,
-            };
-            job();
+        let is_working = Arc::new(AtomicBool::new(false));
+
+        let _thread = thread::spawn({
+            let is_working = Arc::clone(&is_working);
+            move || loop {
+                let job = match receiver.recv() {
+                    Ok(job) => job,
+                    Err(_) => return,
+                };
+
+                is_working.store(true, Ordering::SeqCst);
+                job();
+                is_working.store(false, Ordering::SeqCst);
+            }
         });
 
-        Self { _id: id, _thread }
+        Self {
+            _id: id,
+            _thread,
+            is_working,
+        }
+    }
+
+    fn is_working(&self) -> bool {
+        self.is_working.load(Ordering::SeqCst)
     }
 }
 
 type Job = Box<dyn FnOnce() + Send + 'static>;
+
+#[cfg(test)]
+mod tests {
+    use std::time::Duration;
+
+    use super::*;
+
+    #[test]
+    fn is_working_is_working() {
+        // Arrange
+        let (tx, rx) = mpsc::channel();
+        let rx = Arc::new(Mutex::new(rx));
+        let worker = Worker::new(0, rx);
+
+        // Act
+        let before = worker.is_working();
+        tx.send(Box::new(|| thread::sleep(Duration::from_secs(2))))
+            .unwrap();
+        thread::sleep(Duration::from_secs(1));
+        let during = worker.is_working();
+        thread::sleep(Duration::from_secs(2));
+        let after = worker.is_working();
+
+        // Assert
+        assert_eq!(before, false);
+        assert_eq!(during, true);
+        assert_eq!(after, false);
+    }
+}
