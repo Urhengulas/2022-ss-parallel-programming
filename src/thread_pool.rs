@@ -43,7 +43,6 @@ impl Worker {
                 Ok(job) => job,
                 Err(_) => return,
             };
-            println!("Worker {id} got a job; executing.");
             job();
         });
 

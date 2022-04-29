@@ -1,0 +1,31 @@
+---
+concurrency: 20
+base: "http://localhost:7878"
+iterations: 100
+rampup: 0
+
+plan:
+  - name: "1"
+    request:
+      url: /1
+  - name: "2"
+    request:
+      url: /2
+  - name: "3"
+    request:
+      url: /3
+  - name: "4"
+    request:
+      url: /4
+  - name: "5"
+    request:
+      url: /5
+  - name: "6"
+    request:
+      url: /6
+  - name: "7"
+    request:
+      url: /7
+  - name: "8"
+    request:
+      url: /8
