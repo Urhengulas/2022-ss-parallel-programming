@@ -19,7 +19,7 @@ type Task = Box<dyn FnOnce() + Send + 'static>;
 
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
-    let pool = MultiQueueMultiThread::new(6);
+    let pool = WorkStealing::new(6);
 
     for stream in listener.incoming() {
         let stream = stream.unwrap();
