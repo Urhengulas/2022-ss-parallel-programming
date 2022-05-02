@@ -12,6 +12,8 @@ pub struct SingleQueueMultiThread {
 
 impl SingleQueueMultiThread {
     pub fn new(num_threads: usize) -> Self {
+        assert!(num_threads > 0);
+
         let (sender, receiver) = mpsc::channel();
         let receiver = Arc::new(Mutex::new(receiver));
 
