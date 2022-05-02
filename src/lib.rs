@@ -1,20 +1,11 @@
-mod mqmt;
 mod queue;
-mod sqmt;
-mod sqst;
-mod work_stealing;
 
 use std::{
     io::prelude::*,
     net::{TcpListener, TcpStream},
 };
 
-pub use crate::{
-    mqmt::MultiQueueMultiThread, queue::Queue, sqmt::SingleQueueMultiThread,
-    sqst::SingleQueueSingleThread, work_stealing::WorkStealing,
-};
-
-type Task = Box<dyn FnOnce() + Send + 'static>;
+pub type Task = Box<dyn FnOnce() + Send + 'static>;
 
 pub trait ThreadPool {
     fn execute<T>(&self, f: T)

@@ -3,7 +3,12 @@ use std::{
     thread,
 };
 
-use crate::{Task, ThreadPool};
+use krate::{run_server, Task, ThreadPool};
+
+fn main() {
+    let pool = SingleQueueMultiThread::new(4);
+    run_server(pool);
+}
 
 pub struct SingleQueueMultiThread {
     sender: mpsc::Sender<Task>,
@@ -18,8 +23,8 @@ impl SingleQueueMultiThread {
         let receiver = Arc::new(Mutex::new(receiver));
 
         let mut _workers = Vec::with_capacity(num_threads);
-        for i in 0..num_threads {
-            _workers.push(Worker::new(i, Arc::clone(&receiver)));
+        for _ in 0..num_threads {
+            _workers.push(Worker::new(Arc::clone(&receiver)));
         }
         Self { sender, _workers }
     }
@@ -35,26 +40,20 @@ impl ThreadPool for SingleQueueMultiThread {
 }
 
 struct Worker {
-    _id: usize,
     _thread: thread::JoinHandle<()>,
 }
 
 impl Worker {
-    fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Task>>>) -> Self {
+    fn new(receiver: Arc<Mutex<mpsc::Receiver<Task>>>) -> Self {
         let _thread = thread::spawn({
             move || loop {
                 let job = match receiver.lock().unwrap().recv() {
                     Ok(job) => job,
-                    Err(_) => {
-                        println!("Shutting down thread {id}");
-                        return;
-                    }
+                    Err(_) => return,
                 };
-
                 job();
             }
         });
-
-        Self { _id: id, _thread }
+        Self { _thread }
     }
 }

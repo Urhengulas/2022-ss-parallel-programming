@@ -6,7 +6,12 @@ use std::{
     thread,
 };
 
-use crate::{Task, ThreadPool};
+use krate::{run_server, Task, ThreadPool};
+
+fn main() {
+    let pool = MultiQueueMultiThread::new(4);
+    run_server(pool);
+}
 
 pub struct MultiQueueMultiThread {
     next_thread: AtomicUsize,
@@ -22,9 +27,9 @@ impl MultiQueueMultiThread {
         let mut _workers = Vec::with_capacity(num_threads);
         let mut senders = Vec::with_capacity(num_threads);
 
-        for i in 0..num_threads {
+        for _ in 0..num_threads {
             let (sender, receiver) = mpsc::channel();
-            let worker = Worker::new(i, receiver);
+            let worker = Worker::new(receiver);
             senders.push(sender);
             _workers.push(worker);
         }
@@ -55,12 +60,11 @@ impl ThreadPool for MultiQueueMultiThread {
 }
 
 struct Worker {
-    _id: usize,
     _thread: thread::JoinHandle<()>,
 }
 
 impl Worker {
-    fn new(id: usize, receiver: mpsc::Receiver<Task>) -> Self {
+    fn new(receiver: mpsc::Receiver<Task>) -> Self {
         let _thread = thread::spawn({
             move || loop {
                 let job = match receiver.recv() {
@@ -71,7 +75,6 @@ impl Worker {
                 job();
             }
         });
-
-        Self { _id: id, _thread }
+        Self { _thread }
     }
 }

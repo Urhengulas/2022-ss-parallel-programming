@@ -7,7 +7,12 @@ use std::{
     thread,
 };
 
-use crate::{Task, ThreadPool};
+use krate::{run_server, Task, ThreadPool};
+
+fn main() {
+    let pool = WorkStealing::new(4);
+    run_server(pool);
+}
 
 pub struct WorkStealing {
     next_thread: AtomicUsize,
@@ -94,7 +99,6 @@ impl Worker {
                 job();
             }
         });
-
         Self { _thread }
     }
 }
