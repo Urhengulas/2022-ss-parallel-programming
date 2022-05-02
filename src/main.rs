@@ -1,4 +1,5 @@
 mod queue;
+mod single_queue_single_thread;
 mod thread_pool;
 
 use std::{
@@ -6,11 +7,13 @@ use std::{
     net::{TcpListener, TcpStream},
 };
 
-pub use crate::{queue::Queue, thread_pool::ThreadPool};
+pub use crate::{
+    queue::Queue, single_queue_single_thread::SingleQueueSingleThread, thread_pool::ThreadPool,
+};
 
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
-    let pool = ThreadPool::new(10);
+    let pool = SingleQueueSingleThread::new();
 
     for stream in listener.incoming() {
         let stream = stream.unwrap();
