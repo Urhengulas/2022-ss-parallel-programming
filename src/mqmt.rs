@@ -6,7 +6,7 @@ use std::{
     thread,
 };
 
-use crate::Task;
+use crate::{Task, ThreadPool};
 
 pub struct MultiQueueMultiThread {
     next_thread: AtomicUsize,
@@ -36,10 +36,12 @@ impl MultiQueueMultiThread {
             senders,
         }
     }
+}
 
-    pub fn execute<F>(&self, f: F)
+impl ThreadPool for MultiQueueMultiThread {
+    fn execute<T>(&self, f: T)
     where
-        F: FnOnce() + Send + 'static,
+        T: FnOnce() + Send + 'static,
     {
         // get the index of the next thread and increment the counter
         let next_thread = self

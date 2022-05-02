@@ -7,7 +7,7 @@ use std::{
     thread,
 };
 
-use crate::Task;
+use crate::{Task, ThreadPool};
 
 pub struct WorkStealing {
     next_thread: AtomicUsize,
@@ -43,8 +43,10 @@ impl WorkStealing {
             senders,
         }
     }
+}
 
-    pub fn execute<F>(&self, f: F)
+impl ThreadPool for WorkStealing {
+    fn execute<F>(&self, f: F)
     where
         F: FnOnce() + Send + 'static,
     {

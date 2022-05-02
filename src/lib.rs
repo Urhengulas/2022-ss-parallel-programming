@@ -1,7 +1,7 @@
-mod multi_queue_multi_thread;
+mod mqmt;
 mod queue;
-mod single_queue_multi_thread;
-mod single_queue_single_thread;
+mod sqmt;
+mod sqst;
 mod work_stealing;
 
 use std::{
@@ -10,16 +10,23 @@ use std::{
 };
 
 pub use crate::{
-    multi_queue_multi_thread::MultiQueueMultiThread, queue::Queue,
-    single_queue_multi_thread::SingleQueueMultiThread,
-    single_queue_single_thread::SingleQueueSingleThread, work_stealing::WorkStealing,
+    mqmt::MultiQueueMultiThread, queue::Queue, sqmt::SingleQueueMultiThread,
+    sqst::SingleQueueSingleThread, work_stealing::WorkStealing,
 };
 
 type Task = Box<dyn FnOnce() + Send + 'static>;
 
-fn main() {
+pub trait ThreadPool {
+    fn execute<T>(&self, f: T)
+    where
+        T: FnOnce() + Send + 'static;
+}
+
+pub fn run_server<T>(pool: T)
+where
+    T: ThreadPool,
+{
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
-    let pool = WorkStealing::new(6);
 
     for stream in listener.incoming() {
         let stream = stream.unwrap();

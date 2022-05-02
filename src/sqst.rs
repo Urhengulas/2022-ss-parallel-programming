@@ -1,6 +1,6 @@
 use std::{sync::mpsc, thread};
 
-use crate::Task;
+use crate::{Task, ThreadPool};
 
 pub struct SingleQueueSingleThread {
     sender: mpsc::Sender<Task>,
@@ -13,8 +13,10 @@ impl SingleQueueSingleThread {
         let _worker = Worker::new(0, receiver);
         Self { sender, _worker }
     }
+}
 
-    pub fn execute<F>(&self, f: F)
+impl ThreadPool for SingleQueueSingleThread {
+    fn execute<F>(&self, f: F)
     where
         F: FnOnce() + Send + 'static,
     {

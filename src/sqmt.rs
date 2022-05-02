@@ -3,7 +3,7 @@ use std::{
     thread,
 };
 
-use crate::Task;
+use crate::{Task, ThreadPool};
 
 pub struct SingleQueueMultiThread {
     sender: mpsc::Sender<Task>,
@@ -23,8 +23,10 @@ impl SingleQueueMultiThread {
         }
         Self { sender, _workers }
     }
+}
 
-    pub fn execute<F>(&self, f: F)
+impl ThreadPool for SingleQueueMultiThread {
+    fn execute<F>(&self, f: F)
     where
         F: FnOnce() + Send + 'static,
     {
