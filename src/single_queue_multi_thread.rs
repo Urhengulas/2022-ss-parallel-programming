@@ -1,17 +1,25 @@
-use std::{sync::mpsc, thread};
+use std::{
+    sync::{mpsc, Arc, Mutex},
+    thread,
+};
 
 use crate::Task;
 
-pub struct SingleQueueSingleThread {
+pub struct SingleQueueMultiThread {
     sender: mpsc::Sender<Task>,
-    _worker: Worker,
+    _workers: Vec<Worker>,
 }
 
-impl SingleQueueSingleThread {
-    pub fn new() -> Self {
+impl SingleQueueMultiThread {
+    pub fn new(num_threads: usize) -> Self {
         let (sender, receiver) = mpsc::channel();
-        let _worker = Worker::new(0, receiver);
-        Self { sender, _worker }
+        let receiver = Arc::new(Mutex::new(receiver));
+
+        let mut _workers = Vec::with_capacity(num_threads);
+        for i in 0..num_threads {
+            _workers.push(Worker::new(i, Arc::clone(&receiver)));
+        }
+        Self { sender, _workers }
     }
 
     pub fn execute<F>(&self, f: F)
@@ -28,10 +36,10 @@ struct Worker {
 }
 
 impl Worker {
-    fn new(id: usize, receiver: mpsc::Receiver<Task>) -> Self {
+    fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Task>>>) -> Self {
         let _thread = thread::spawn({
             move || loop {
-                let job = match receiver.recv() {
+                let job = match receiver.lock().unwrap().recv() {
                     Ok(job) => job,
                     Err(_) => {
                         println!("Shutting down thread {id}");

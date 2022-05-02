@@ -1,4 +1,5 @@
 mod queue;
+mod single_queue_multi_thread;
 mod single_queue_single_thread;
 mod thread_pool;
 
@@ -8,12 +9,15 @@ use std::{
 };
 
 pub use crate::{
-    queue::Queue, single_queue_single_thread::SingleQueueSingleThread, thread_pool::ThreadPool,
+    queue::Queue, single_queue_multi_thread::SingleQueueMultiThread,
+    single_queue_single_thread::SingleQueueSingleThread, thread_pool::ThreadPool,
 };
+
+type Task = Box<dyn FnOnce() + Send + 'static>;
 
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
-    let pool = SingleQueueSingleThread::new();
+    let pool = SingleQueueMultiThread::new(6);
 
     for stream in listener.incoming() {
         let stream = stream.unwrap();
