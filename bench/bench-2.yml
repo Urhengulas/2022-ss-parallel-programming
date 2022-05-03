@@ -1,0 +1,18 @@
+---
+concurrency: 10
+base: "http://localhost:7878"
+iterations: 250
+
+plan:
+  - name: "4"
+    request:
+      url: /4
+  - name: "5"
+    request:
+      url: /5
+  - name: "6"
+    request:
+      url: /6
+  - name: "7"
+    request:
+      url: /7

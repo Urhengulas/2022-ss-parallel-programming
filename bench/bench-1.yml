@@ -1,0 +1,9 @@
+---
+concurrency: 10
+base: "http://localhost:7878"
+iterations: 1000
+
+plan:
+  - name: "6"
+    request:
+      url: /6

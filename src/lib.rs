@@ -5,6 +5,8 @@ use std::{
     net::{TcpListener, TcpStream},
 };
 
+pub use queue::Queue;
+
 pub type Task = Box<dyn FnOnce() + Send + 'static>;
 
 pub trait ThreadPool {
@@ -47,7 +49,9 @@ fn handle_connection(mut stream: TcpStream) {
 }
 
 fn ascii_to_u64(ascii: u8) -> u64 {
-    (ascii as char).to_digit(10).unwrap() as u64
+    (ascii as char)
+        .to_digit(10)
+        .expect(format!("{ascii}").as_str()) as u64
 }
 
 fn fibonacci(n: u64) -> u64 {
