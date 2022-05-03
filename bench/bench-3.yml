@@ -1,37 +1,37 @@
 ---
-concurrency: 10
+concurrency: 5
 base: "http://localhost:7878"
-iterations: 100
+iterations: 50
 rampup: 0
 
 plan:
   - name: "8"
     request:
       url: /8
-  - name: "3"
+  - name: "1"
     request:
-      url: /3
-  - name: "3"
+      url: /1
+  - name: "1"
     request:
-      url: /3
-  - name: "3"
+      url: /1
+  - name: "1"
     request:
-      url: /3
-  - name: "3"
+      url: /1
+  - name: "1"
     request:
-      url: /3
-  - name: "3"
+      url: /1
+  - name: "1"
     request:
-      url: /3
-  - name: "3"
+      url: /1
+  - name: "1"
     request:
-      url: /3
-  - name: "3"
+      url: /1
+  - name: "1"
     request:
-      url: /3
-  - name: "3"
+      url: /1
+  - name: "1"
     request:
-      url: /3
-  - name: "3"
+      url: /1
+  - name: "1"
     request:
-      url: /3
+      url: /1

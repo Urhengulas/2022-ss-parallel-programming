@@ -1,7 +1,7 @@
 ---
-concurrency: 10
+concurrency: 5
 base: "http://localhost:7878"
-iterations: 1000
+iterations: 4000
 
 plan:
   - name: "6"
