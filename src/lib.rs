@@ -1,3 +1,4 @@
+mod atomic_counter;
 mod queue;
 
 use std::{
@@ -5,7 +6,7 @@ use std::{
     net::{TcpListener, TcpStream},
 };
 
-pub use queue::Queue;
+pub use crate::{atomic_counter::AtomicCounter, queue::Queue};
 
 pub type Task = Box<dyn FnOnce() + Send + 'static>;
 
