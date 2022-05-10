@@ -4,6 +4,8 @@
 
 In this repository you can find 4 different implementations of a thread-pool and 3 different workloads. As you might guess, we run all of the workloads against all of the implementations. We repeat this with different amounts of threads (1, 2, 4, 8).
 
+You can find the results in [./bench/bench.csv](./bench/bench.csv).
+
 ## Why?
 
 The goal of this is to understand how different design decisions impact the performance under different workloads. The implementations are very similar overall, but differ in the amount of queues and threads, and depending on that the usage or not-usage of mutexes. They are by no means optimized and should not end up in any production system. Below I will briefly describe them.
