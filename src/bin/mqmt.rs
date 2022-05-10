@@ -9,7 +9,7 @@ use std::{
 use krate::{run_server, Task, ThreadPool};
 
 fn main() {
-    let pool = MultiQueueMultiThread::new(4);
+    let pool = MultiQueueMultiThread::new(1);
     run_server(pool);
 }
 

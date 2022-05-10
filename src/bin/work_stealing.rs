@@ -10,7 +10,7 @@ use std::{
 use krate::{run_server, Task, ThreadPool};
 
 fn main() {
-    let pool = WorkStealing::new(4);
+    let pool = WorkStealing::new(1);
     run_server(pool);
 }
 

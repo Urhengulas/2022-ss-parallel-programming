@@ -1,20 +1,20 @@
 BENCH #1,,,,
 ,1,2,4,8
 sqst,10.4,,,
-sqmt,8.9,5.40,3.30,3.20
-mqmt,8.2,5.40,3.20,3.10
-work-stealing,9.2,5.00,3.30,3.10
+sqmt,8.9,5.4,3.3,3.2
+mqmt,8.2,5.4,3.2,3.1
+work-stealing,9.2,5,3.3,3.1
 ,,,,
 BENCH #2,,,,
 ,1,2,4,8
-sqst,,,,
-sqmt,,,,
-mqmt,,,,
-work-stealing,,,,
+sqst,15.1,,,
+sqmt,12.5,8.4,4.4,4.2
+mqmt,12.6,9,6.3,5
+work-stealing,14.3,8.8,6.2,5.2
 ,,,,
 BENCH #3,,,,
 ,1,2,4,8
-sqst,,,,
-sqmt,,,,
-mqmt,,,,
-work-stealing,,,,
+sqst,13.9,,,
+sqmt,12,7.7,4.2,3.6
+mqmt,12,10.7,7.6,5.9
+work-stealing,13.5,9.7,7.2,4.8
