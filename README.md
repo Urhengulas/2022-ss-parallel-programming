@@ -4,8 +4,6 @@
 
 In this repository you can find 4 different implementations of a thread-pool and 3 different workloads. As you might guess, we run all of the workloads against all of the implementations. We repeat this with different amounts of threads (1, 2, 4, 8).
 
-You can find the results in [./bench/bench.csv](./bench/bench.csv).
-
 ## Why?
 
 The goal of this is to understand how different design decisions impact the performance under different workloads. The implementations are very similar overall, but differ in the amount of queues and threads, and depending on that the usage or not-usage of mutexes. They are by no means optimized and should not end up in any production system. Below I will briefly describe them.
@@ -53,3 +51,20 @@ The different workloads are described in the yml-files in `bench/`. `drill` will
 `bench-2.yml` sends `GET /4`, `GET /5`, `GET /6`, `GET /7`. The tasks take different times for processing, but are relatively evenly distributed.
 
 `bench-3.yml` sends `GET /1` and `GET /8`, but for every `GET /8` there are 9 `GET /1`. In other words we have many small and very few very big tasks.
+
+## Analysis
+
+You can find the results in [./bench/bench.csv](./bench/bench.csv) and a visualization of them here:
+
+![visualization of results of bench-1](./bench/bench-1.png)
+*Results of `bench-1`.*
+
+![visualization of results of bench-2](./bench/bench-2.png)
+*Results of `bench-2`.*
+
+![visualization of results of bench-3](./bench/bench-3.png)
+*Results of `bench-3`.*
+
+**Observations**
+- performance improves when increasing the number of threads
+- ...
