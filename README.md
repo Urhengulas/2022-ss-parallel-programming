@@ -6,7 +6,7 @@ In this repository you can find 4 different implementations of a thread-pool and
 
 ## Why?
 
-The goal of this is to understand how different design decisions impact the performance under different workloads. The implementations are very similar overall, but differ in the amount of queues and threads, and depending on that the usage or not-usage of mutexes. They are by no means optimized and should not end up in any production system. Below I will briefly describe them.
+The goal of this is to understand how different design decisions impact the performance under different workloads. The implementations are very similar overall but differ in the amount of queues and threads, and depending on that the usage or not-usage of mutexes. They are by no means optimized and should not end up in any production system. Below I will briefly describe them.
 
 ## How?
 
@@ -36,11 +36,11 @@ In the visualization above you can see the structure of the 4 different implemen
 
 The single-queue-single-thread (`sqst`) is the most simple. It has one queue into which all the tasks get pushed and one thread executing the tasks in the queue. Because of its simplicity there is no need for a `Mutex` and no contention on the queue.
 
-The single-queue-multi-thread (`sqmt`) has still only one queue, but multiple threads pulling tasks out of the queue in order to execute them. The queue is highly contended and therefore synchronized via a `Mutex`.
+The single-queue-multi-thread (`sqmt`) has still only one queue but multiple threads pulling tasks out of the queue in order to execute them. The queue is highly contended and therefore synchronized via a `Mutex`.
 
 The multi-queue-multi-thread (`mqmt`) has multiple queues, namely one for each thread. Tasks get inserted into the queues in a round robin fashin and each thread pulls out of its dedicated queue. There is no contention on the queues and therefore no `Mutex` needed.
 
-The work-stealing has multiple queues, similarly to `mqmt` one for each thread. But while each thread still has their personal queue, they steal tasks from other queues, if no task is available in their own queue. Each queue has potential contention and therefore is synchronized via a `Mutex`.
+The work-stealing has multiple queues, similarly to `mqmt` one for each thread. While each thread still has their personal queue, they steal tasks from other queues, if no task is available in their own queue. Each queue has potential contention and therefore is synchronized via a `Mutex`.
 
 ### Workloads
 
@@ -48,9 +48,9 @@ The different workloads are described in the yml-files in `bench/`. `drill` will
 
 `bench-1.yml` only sends `GET /6`, therefore all the tasks take the same time for processing.
 
-`bench-2.yml` sends `GET /4`, `GET /5`, `GET /6`, `GET /7`. The tasks take different times for processing, but are relatively evenly distributed.
+`bench-2.yml` sends `GET /4`, `GET /5`, `GET /6`, `GET /7`. The tasks take different times for processing but are relatively evenly distributed.
 
-`bench-3.yml` sends `GET /1` and `GET /8`, but for every `GET /8` there are 9 `GET /1`. In other words we have many small and very few very big tasks.
+`bench-3.yml` sends `GET /1` and `GET /8` but for every `GET /8` there are 9 `GET /1`. In other words we have many small and very few very big tasks.
 
 ## Analysis
 
@@ -65,6 +65,7 @@ You can find the results in [./bench/bench.csv](./bench/bench.csv) and a visuali
 ![visualization of results of bench-3](./bench/bench-3.png)
 *Results of `bench-3`.*
 
-**Observations**
-- performance improves when increasing the number of threads
-- ...
+**Observations** (some might be obvious)
+- performance improves when increasing the number of threads, but not linearly
+- unexpectedly sqmt has the best performance in most cases -> this probably is to some inefficiency in the implementation of mqmt and work-stealing
+- also unexpectedly sqst has significantly worse performance than sqmt with one thread. I would have assumed this to be the other way around, because in sqmt the queue is inside a vector and protected by a mutex which should create some overhead, but apparently rather creates a speedup
