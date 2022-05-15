@@ -67,5 +67,9 @@ You can find the results in [./bench/bench.csv](./bench/bench.csv) and a visuali
 
 **Observations** (some might be obvious)
 - performance improves when increasing the number of threads, but not linearly
-- unexpectedly sqmt has the best performance in most cases -> this probably is to some inefficiency in the implementation of mqmt and work-stealing
+- unexpectedly sqmt has the best performance in most cases
+  - it makes sense that sqmt is better off than mqmt for bench#2 and bench#3, because in these two cases we have (dramatically) different job sizes, which cloakes the queues for mqmt
+  - but I would have assumed that work-stealing performs better than sqmt, since it can benefit from multiple queues, but avoids the cloaking by stealing tasks from one another
+  - is there some inefficiency in the implementation of mqmt and work-stealing?
+- with only one thread work-stealing has the worst performance of the three multi-thread implementations
 - also unexpectedly sqst has significantly worse performance than sqmt with one thread. I would have assumed this to be the other way around, because in sqmt the queue is inside a vector and protected by a mutex which should create some overhead, but apparently rather creates a speedup
